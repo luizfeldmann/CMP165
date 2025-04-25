@@ -1,6 +1,8 @@
 """ Trabalho 1 - CPM165
 Adaptive histogram equalization with visual perception consistency
 
+Imagem a0317-IMG_0647.jpg corresponde a Marsh
+
 Algoritmo:
 
 1. Entrada de uma imagem e obtenção de seu histograma normalizado pela média hist usando a Fórmula (1).
@@ -15,6 +17,7 @@ obtendo assim o histograma ajustado hist1 pela Fórmula (4).
 """
 
 
+import os
 import numpy as np
 import cv2
 import matplotlib.pyplot as plt
@@ -86,7 +89,7 @@ def step2_gamma1_adjustment(hist, Im):
             min_diff = diff
             best_gamma = gamma
             best_hist1 = hist1
-    print(f"{best_gamma=}")
+    # print(f"{best_gamma=}")
 
     # devolve y_1 ótimo e o histograma ajustado correspondente
     return best_gamma, best_hist1
@@ -295,7 +298,7 @@ def step8_equalize(gray, hist):
     # faz a remapeamento dos pixels usando a cdf escalada
     equalized = np.interp(gray.flatten(), np.arange(256), cdf)
     # remodela ao formato original e converte para uint8
-    print(f"{equalized=}")
+    # print(f"{equalized=}")
 
     return equalized.reshape(gray.shape).astype(np.uint8)
 
@@ -303,14 +306,20 @@ def step8_equalize(gray, hist):
 
 if __name__ == "__main__":
 
-    figures = ["fig3.png", "fig4.png", "fig4b.png",]
-
-    # image_path = "fig3.png"
-    # image_path = "fig4.png"
-    # image_path = "fig4b.png"
-
-    for image_path in figures:
+    path = os.path.abspath(__file__)
+    os.makedirs("image_results", exist_ok=True)
     
+    files = [
+        os.path.join(root, file)
+        for root, dirs, files_list in os.walk(path.replace("teste1.py", "images"))
+        for file in files_list
+    ]
+
+    for index, image_path in enumerate(files):
+
+        print(f"Precessing: {index+1}/{len(files)}")
+
+        filename = "image_results/" + image_path.split("/")[-1]
         image = cv2.imread(image_path)
 
         gray,  hist, Im     = step1_normalized_histogram(image)
@@ -345,9 +354,10 @@ if __name__ == "__main__":
             ax.axis('off')
         plt.tight_layout()
         # plt.show()
-        plt.savefig(f"{image_path}_final.png")
+        plt.savefig(f"{filename}_final.png")
 
 
         # save one img
-        cv2.imwrite(f"{image_path}_enhanced.png", enhanced)
+        cv2.imwrite(f"{filename}_gray.png", gray)
+        cv2.imwrite(f"{filename}_enhanced.png", enhanced)
 
