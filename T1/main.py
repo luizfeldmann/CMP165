@@ -74,8 +74,6 @@ def step2_gamma1_adjustment(hist, Im):
 
     # Varre y E [0,1]
     # for gamma in np.linspace(0.0, 1.0, 100):
-    # PONTO DE ATENÇÃO:
-    # No Artigo: 0.0, 1.0, mas não teve bom resultado :/
     for gamma in np.linspace(0.5, 1.0, 100):
 
         # Fórmula 4 hist1(k) = hist(k)^γ
@@ -311,7 +309,7 @@ if __name__ == "__main__":
     
     files = [
         os.path.join(root, file)
-        for root, dirs, files_list in os.walk(path.replace("teste1.py", "images"))
+        for root, dirs, files_list in os.walk(path.replace("main.py", "images"))
         for file in files_list
     ]
 
