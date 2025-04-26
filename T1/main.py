@@ -300,6 +300,26 @@ def step8_equalize(gray, hist):
 
     return equalized.reshape(gray.shape).astype(np.uint8)
 
+def plot_image_with_histogram(axes, column, image, title):
+    """Insert subplots of the image and it's histogram below it"""
+
+    greyscale = 2 == len(image.shape)
+
+    # 1st row - plot image
+    ax_img = axes[0, column]
+    ax_img.imshow(image, cmap='gray' if greyscale else None)
+    ax_img.set_title(title)
+    ax_img.axis('off')
+
+    # 2nd row - plot corresponding histogram
+    ax_hist = axes[1, column]
+    if greyscale:
+        ax_hist.hist(image.ravel(), bins=256, range=[0, 256], color='black')
+        ax_hist.set_xlim(0, 256)
+        ax_hist.tick_params(axis='y', labelleft=False)
+    else:
+        ax_hist.set_visible(False)
+
 def main():
     root_folder = os.path.dirname(os.path.abspath(__file__))
 
@@ -337,26 +357,20 @@ def main():
         #  Initial adjustment (passo 2)
         initial = step8_equalize(gray, hist1)
 
+        # View original, intermediate and final together for comparison
+        fig, axs = plt.subplots(2, 5, figsize=(30, 10))
 
-        # Visualizar
-        fig, axs = plt.subplots(1, 5, figsize=(30, 5))
-        axs[0].imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
-        axs[0].set_title("Original")
-        axs[1].imshow(gray, cmap='gray')
-        axs[1].set_title("Gray Scale")
-        axs[2].imshow(he, cmap='gray')
-        axs[2].set_title("HE")
-        axs[3].imshow(initial, cmap='gray')
-        axs[3].set_title("Initial Adjustment")
-        axs[4].imshow(enhanced, cmap='gray')
-        axs[4].set_title("Enhanced (AHEVPC)")
-        for ax in axs:
-            ax.axis('off')
+        input_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        plot_image_with_histogram(axs, 0, input_rgb,"Original")
+        plot_image_with_histogram(axs, 1, gray,     "Grayscale")
+        plot_image_with_histogram(axs, 2, he,       "HE")
+        plot_image_with_histogram(axs, 3, initial,  "Initial Adjustment")
+        plot_image_with_histogram(axs, 4, enhanced, "Enhanced (AHEVPC)")
+
         plt.tight_layout()
-        # plt.show()
         plt.savefig(f"{output_filename_base}_final.png")
 
-        # save one img
+        # Save the processed images
         cv2.imwrite(f"{output_filename_base}_gray.png", gray)
         cv2.imwrite(f"{output_filename_base}_enhanced.png", enhanced)
 
