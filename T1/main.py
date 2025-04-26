@@ -300,27 +300,29 @@ def step8_equalize(gray, hist):
 
     return equalized.reshape(gray.shape).astype(np.uint8)
 
+def main():
+    root_folder = os.path.dirname(os.path.abspath(__file__))
 
+    # Ensure output folder exists
+    output_folder = os.path.join(root_folder, "image_results")
+    os.makedirs(output_folder, exist_ok=True)
 
-if __name__ == "__main__":
-
-    path = os.path.abspath(__file__)
-    os.makedirs("image_results", exist_ok=True)
-    
-    files = [
+    # Collect the input files
+    input_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), "images")
+    input_files = [
         os.path.join(root, file)
-        for root, dirs, files_list in os.walk(path.replace("main.py", "images"))
+        for root, dirs, files_list in os.walk(input_folder)
         for file in files_list
     ]
 
-    for index, image_path in enumerate(files):
+    for index, input_image_path in enumerate(input_files):
 
-        print(f"Precessing: {index+1}/{len(files)}")
+        print(f"Processing: {index+1}/{len(input_files)}")
 
-        filename = "image_results/" + image_path.split("/")[-1]
-        image = cv2.imread(image_path)
+        output_filename_base = os.path.join(output_folder, os.path.basename(input_image_path))
+        image = cv2.imread(input_image_path)
 
-        gray,  hist, Im     = step1_normalized_histogram(image)
+        gray, hist, Im      = step1_normalized_histogram(image)
         gamma1, hist1       = step2_gamma1_adjustment(hist, Im)
         gamma2              = step3_gamma2(gamma1)
         hist2               = step4_hist2_small_values(hist1, gamma2)
@@ -352,10 +354,11 @@ if __name__ == "__main__":
             ax.axis('off')
         plt.tight_layout()
         # plt.show()
-        plt.savefig(f"{filename}_final.png")
-
+        plt.savefig(f"{output_filename_base}_final.png")
 
         # save one img
-        cv2.imwrite(f"{filename}_gray.png", gray)
-        cv2.imwrite(f"{filename}_enhanced.png", enhanced)
+        cv2.imwrite(f"{output_filename_base}_gray.png", gray)
+        cv2.imwrite(f"{output_filename_base}_enhanced.png", enhanced)
 
+if __name__ == "__main__":
+    main()
